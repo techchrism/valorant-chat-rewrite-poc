@@ -11,5 +11,5 @@ Note: This project makes use of global fetch in Node 18+
  - Run `npm run build` to build the project
  - Ensure Valorant is not running and run `node .` to start. This will start Valorant automatically.
 
-The default "macro" (replaces entire message) is "!bee" and the default "replacement" (replaces just that occurrence) is ":heart:".
+The default "macro" (replaces entire message) is `!bee` and the default "replacement" (replaces just that occurrence) is `:heart:`.
 These can easily be changed or extended in `src/main.ts`.
