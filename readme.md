@@ -1,26 +1,15 @@
-# Valorant XMPP Logger
-A simple tool to log XMPP traffic between the Riot client and the Riot XMPP server. Includes information such as presences and chat.
+# Valorant Chat Rewrite Proof of Concept
+Proof-of-concept for rewriting Valorant chat by MITM-ing the XMPP connection.
 
-*Heavily* based on [Burak](https://github.com/BurakDev)'s [riot-xmpp-mitm](https://github.com/ValorantDevelopers/riot-xmpp-mitm) project.
+https://user-images.githubusercontent.com/26680599/214389756-a5603b1f-e1de-4551-9b96-5dc9e5010f3c.mp4
+
+Slightly modified from [Valorant XMPP Logger](https://github.com/techchrism/valorant-xmpp-logger)
 
 ## Usage
 Note: This project makes use of global fetch in Node 18+
  - Clone the repo and run `npm install`
  - Run `npm run build` to build the project
- - Ensure Valorant is not running and run `node .` to start the logger. This will start Valorant automatically.
+ - Ensure Valorant is not running and run `node .` to start. This will start Valorant automatically.
 
-## Log Format
-The first line of the file must contain a json-encoded object with required properties
-`type` being set to `valorant-xmpp-logger` and `version` being a semver representing the format version.
-
-Following lines are either comments (to be ignored by parsers) starting with `#` or log entries.
-Log entries are json-encoded objects with the following properties:
- - `type`: `incoming` for incoming data, `outgoing` for outgoing data
- - `time`: timestamp of the log entry
- - `data`: the data that was sent or received
-
-## Motivation
-While [an excellent xmpp mitm project](https://github.com/ValorantDevelopers/riot-xmpp-mitm) had already been created,
-I wanted to try my hand at creating a similar project to better understand MITM-ing the Riot client config.
-This project also writes logs to disk in an easily parsable format, which is useful for creating tools to analyze the logs.
-Finally, this project automatically finds and starts the Riot client which is convenient.
+The default "macro" (replaces entire message) is "!bee" and the default "replacement" (replaces just that occurrence) is ":heart:".
+These can easily be changed or extended in `src/main.ts`.

@@ -1,18 +1,23 @@
 import * as tls from 'node:tls'
 import {ConfigMITM} from './ConfigMITM'
 import * as fs from 'node:fs'
+import {XMLBuilder, XMLParser} from 'fast-xml-parser'
 
 export class XmppMITM {
     private readonly _port: number
     private readonly _host: string
     private readonly _configMitm: ConfigMITM
-    private readonly _logStream: fs.WriteStream
+    private readonly _macroMap: Map<string, string>
+    private readonly _replacementMap: Map<string, string>
+    private readonly _parser = new XMLParser({ignoreAttributes: false})
+    private readonly _builder = new XMLBuilder({ignoreAttributes: false})
 
-    constructor(port: number, host: string, configMitm: ConfigMITM, logStream: fs.WriteStream) {
+    constructor(port: number, host: string, configMitm: ConfigMITM, macroMap: Map<string, string>, replacementMap: Map<string, string>) {
         this._port = port
         this._host = host
         this._configMitm = configMitm
-        this._logStream = logStream
+        this._macroMap = macroMap
+        this._replacementMap = replacementMap
     }
 
     async start() {
@@ -48,24 +53,32 @@ export class XmppMITM {
                 })
 
                 riotTLS.on('data', data => {
-                    this._logStream.write(JSON.stringify({
-                        type: 'incoming',
-                        time: Date.now(),
-                        data: data.toString()
-                    }) + '\n')
                     socket.write(data)
                 })
 
                 socket.on('data', data => {
-                    this._logStream.write(JSON.stringify({
-                        type: 'outgoing',
-                        time: Date.now(),
-                        data: data.toString()
-                    }) + '\n')
+                    let modifiedBuffer = data
+                    try {
+                        const xml = this._parser.parse(data.toString())
+                        if(xml.hasOwnProperty('message')) {
+                            const macro = this._macroMap.get(xml.message['body'])
+                            if(macro !== undefined) {
+                                xml.message['body'] = macro
+                            } else {
+                                for(const [key, value] of this._replacementMap.entries()) {
+                                    xml.message['body'] = xml.message['body'].replaceAll(key, value)
+                                }
+                            }
+
+                            modifiedBuffer = Buffer.from(this._builder.build(xml))
+                        }
+                    } catch(ignored) {}
+
+
                     if(riotTLS.connecting) {
-                        preConnectBuffer = Buffer.concat([preConnectBuffer, data])
+                        preConnectBuffer = Buffer.concat([preConnectBuffer, modifiedBuffer])
                     } else {
-                        riotTLS.write(data)
+                        riotTLS.write(modifiedBuffer)
                     }
                 })
             }).listen(this._port, () => {resolve()})

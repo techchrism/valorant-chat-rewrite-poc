@@ -1,7 +1,7 @@
 {
-  "name": "valorant-xmpp-logger",
+  "name": "valorant-chat-rewrite-poc",
   "version": "1.0.0",
-  "description": "A simple tool to log XMPP traffic between the Riot client and the Riot XMPP server",
+  "description": "Proof-of-concept for rewriting Valorant chat by MITM-ing the XMPP connection",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",
@@ -22,5 +22,8 @@
     "@types/node": "^18.11.18",
     "typescript": "^4.9.4",
     "undici": "^5.16.0"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.0.14"
   }
 }
